@@ -1,21 +1,40 @@
-# This is my quick redo of sick.codes osx docker/kvm os X VM.
+# macOS on QEMU
 
-## This uses docker-compose and a docker volume to persist your os x image.
+This repository was originally a quick redo of [sick.codes](https://github.com/sickcodes/Docker-OSX) Docker/KVM macOS VM. The default workflow used Docker Compose to build and run the VM. This repository now also supports running directly with QEMU without Docker.
 
+## Running with Docker (legacy)
 
-### Getting started
-```
+The original Docker setup is still available. It uses a docker volume to persist the macOS image.
+
+```bash
 mkdir -p baseImages
 cd baseImages
-wget or curl https://images.sick.codes/BaseSystem_Monterey.dmg
+wget https://images.sick.codes/BaseSystem_Monterey.dmg
 cd ..
 docker-compose build
 docker-compose up -d
 ```
-OS X bootloader should startup shortly after.
 
-From there ```docker-compose up -d``` is how you can spin back up a container with your os x data still in the volume.
+The bootloader should appear shortly after. Run `docker-compose up -d` again whenever you want to restart the VM. The volume is named something like `mysickcodes_disk` (`docker volume ls`). Delete it to start over: `docker volume delete mysickcodes_disk`.
 
-The docker volumes would be named something like mysickcodes_disk. Use ```docker volume ls``` to verify.
+## Running directly with QEMU
 
-To start over delete this volume ```docker volume delete mysickcodes_disk```
+To avoid Docker entirely, ensure QEMU and KVM are installed on your host and download the base image as shown above. The `launch_qemu.sh` helper now supports preparing the disk images, launching the VM and stopping it later.
+
+### Create images and launch
+
+```bash
+chmod +x launch_qemu.sh
+./launch_qemu.sh create   # one-time image creation
+./launch_qemu.sh launch   # start the VM
+```
+
+Run `./launch_qemu.sh stop` to stop a running VM. Any unrecognized argument prints usage information.
+
+Environment variables from the Docker setup (e.g. `RAM`, `BOOTDISK`, `NETWORKING`, etc.) are respected. You can override them before executing the script, for example:
+
+```bash
+RAM=max NETWORKING=e1000-82545em ./launch_qemu.sh
+```
+
+This will start the macOS VM directly with QEMU while preserving the same functionality as the Docker container.
