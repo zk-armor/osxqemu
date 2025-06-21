@@ -19,12 +19,17 @@ The bootloader should appear shortly after. Run `docker-compose up -d` again whe
 
 ## Running directly with QEMU
 
-To avoid Docker entirely, ensure QEMU and KVM are installed on your host and download the base image as shown above. Then run the included `launch_qemu.sh` script:
+To avoid Docker entirely, ensure QEMU and KVM are installed on your host and download the base image as shown above. The `launch_qemu.sh` helper now supports preparing the disk images, launching the VM and stopping it later.
+
+### Create images and launch
 
 ```bash
 chmod +x launch_qemu.sh
-./launch_qemu.sh
+./launch_qemu.sh create   # one-time image creation
+./launch_qemu.sh launch   # start the VM
 ```
+
+Run `./launch_qemu.sh stop` to stop a running VM. Any unrecognized argument prints usage information.
 
 Environment variables from the Docker setup (e.g. `RAM`, `BOOTDISK`, `NETWORKING`, etc.) are respected. You can override them before executing the script, for example:
 
